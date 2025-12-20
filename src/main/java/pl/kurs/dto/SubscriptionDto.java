@@ -1,0 +1,31 @@
+package pl.kurs.dto;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import pl.kurs.validation.Create;
+import pl.kurs.validation.Delete;
+import pl.kurs.validation.Update;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+public class SubscriptionDto {
+    @NotNull(message = "ID is required", groups = {Update.class, Delete.class})
+    @Min(value = 1, message = "ID must be at least 1", groups = {Update.class, Delete.class})
+    private Long id;
+
+    @NotNull(message = "Client ID is required", groups = Create.class)
+    @Min(value = 1, message = "Client ID must be at least 1", groups = Create.class)
+    private Long clientId;
+
+    @Min(value = 1, message = "Author ID must be at least 1", groups = Create.class)
+    private Long authorId;
+
+    @Min(value = 1, message = "Category ID must be at least 1", groups = Create.class)
+    private Long categoryId;
+}
