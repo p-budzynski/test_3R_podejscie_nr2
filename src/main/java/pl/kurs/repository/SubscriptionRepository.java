@@ -13,20 +13,20 @@ import java.util.stream.Stream;
 @Repository
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
-    @Query("""
-                SELECT s FROM Subscription s
-                JOIN FETCH s.client
-                WHERE (s.author.id = :authorId)
-                   OR (s.category.id = :categoryId)
-            """)
+
     @QueryHints({
             @QueryHint(name = "org.hibernate.fetchSize", value = "500"),
-            @QueryHint(name = "org.hibernate.readOnly", value = "true"),
-            @QueryHint(name = "org.hibernate.cacheable", value = "false")
+            @QueryHint(name = "org.hibernate.readOnly", value = "true")
     })
-    Stream<Subscription> streamByAuthorIdOrCategoryId(
-            @Param("authorId") Long authorId,
-            @Param("categoryId") Long categoryId);
+    @Query("SELECT s FROM Subscription s JOIN FETCH s.client WHERE s.author.id = :authorId")
+    Stream<Subscription> streamByAuthorId(@Param("authorId") Long authorId);
+
+    @QueryHints({
+            @QueryHint(name = "org.hibernate.fetchSize", value = "500"),
+            @QueryHint(name = "org.hibernate.readOnly", value = "true")
+    })
+    @Query("SELECT s FROM Subscription s JOIN FETCH s.client WHERE s.category.id = :categoryId ")
+    Stream<Subscription> streamByCategoryId(@Param("categoryId") Long categoryId);
 
     boolean existsByClientIdAndCategoryId(Long clientId, Long categoryId);
 

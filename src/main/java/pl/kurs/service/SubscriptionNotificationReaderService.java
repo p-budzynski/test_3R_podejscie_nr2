@@ -13,9 +13,7 @@ import pl.kurs.entity.SubscriptionNotification;
 import pl.kurs.repository.SubscriptionNotificationRepository;
 import pl.kurs.repository.SubscriptionRepository;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -35,27 +33,26 @@ public class SubscriptionNotificationReaderService {
         Book book = bookService.findBookById(bookId);
         List<SubscriptionNotification> batch = new ArrayList<>();
 
-        try (Stream<Subscription> subscriptionStream = subscriptionRepository.streamByAuthorIdOrCategoryId(
-                book.getAuthor().getId(), book.getCategory().getId())) {
+        Set<Long> processedClientIds = new HashSet<>();
 
-            subscriptionStream.forEach(subscription -> {
-                batch.add(SubscriptionNotification.builder()
-                        .client(subscription.getClient())
-                        .book(book)
-                        .build());
+        try (Stream<Subscription> authorStream = subscriptionRepository.streamByAuthorId(book.getAuthor().getId());
+             Stream<Subscription> categoryStream = subscriptionRepository.streamByCategoryId(book.getCategory().getId())) {
 
-                if (batch.size() >= 500) {
-                    notificationRepository.saveAll(batch);
-                    notificationRepository.flush();
-                    entityManager.clear();
-                    batch.clear();
-                    entityManager.merge(book);
-                }
+            Stream.concat(authorStream, categoryStream)
+                    .filter(sub -> processedClientIds.add(sub.getClient().getId()))
+                    .forEach(subscription -> {
+                        batch.add(SubscriptionNotification.builder()
+                                .client(subscription.getClient())
+                                .book(book)
+                                .build());
 
-            });
+                        if (batch.size() >= 500) {
+                            saveBatch(batch, book);
+                        }
+                    });
 
             if (!batch.isEmpty()) {
-                notificationRepository.saveAll(batch);
+                saveBatch(batch, book);
             }
         }
     }
@@ -89,5 +86,13 @@ public class SubscriptionNotificationReaderService {
                 processingService.processBucket(currentClient, new ArrayList<>(bucket));
             }
         }
+    }
+
+    private void saveBatch(List<SubscriptionNotification> batch, Book book) {
+        notificationRepository.saveAll(batch);
+        notificationRepository.flush();
+        entityManager.clear();
+        batch.clear();
+        entityManager.merge(book);
     }
 }

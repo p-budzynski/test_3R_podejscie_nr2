@@ -43,82 +43,63 @@ public class SubscriptionNotificationReaderServiceTest {
     void shouldCreateNotificationsForSubscriptionsSavesAllWhenLessThanBatchSize() {
         //given
         Long bookId = 1L;
-        Book book = new Book();
-        Author author = new Author();
-        Category category = new Category();
+        Book book = createTestBook(bookId, 10L, 20L);
         Client client = new Client();
-        author.setId(1L);
-        category.setId(1L);
-        book.setAuthor(author);
-        book.setCategory(category);
+        client.setId(100L);
         Subscription subscription = new Subscription();
         subscription.setClient(client);
 
-        List<Subscription> subscriptions = List.of(subscription);
-
         when(bookServiceMock.findBookById(bookId)).thenReturn(book);
-        when(subscriptionRepositoryMock.streamByAuthorIdOrCategoryId(anyLong(), anyLong()))
-                .thenAnswer(invocation -> subscriptions.stream());
+        when(subscriptionRepositoryMock.streamByAuthorId(10L)).thenAnswer(inv -> Stream.of(subscription));
+        when(subscriptionRepositoryMock.streamByCategoryId(20L)).thenAnswer(inv -> Stream.empty());
 
         //when
         readerService.createNotificationsForSubscriptions(bookId);
 
         //then
         verify(notificationRepositoryMock, times(1)).saveAll(anyList());
-        verify(entityManager, never()).clear();
+        verify(entityManager, times(1)).clear();
+        verify(entityManager, times(1)).merge(book);
     }
 
     @Test
     void shouldCreateNotificationsForSubscriptionsSavesInBatchesWhenMoreThanBatchSize() {
         //given
         Long bookId = 1L;
-        Book book = new Book();
-        Author author = new Author();
-        Category category = new Category();
-        Client client = new Client();
-
-        author.setId(1L);
-        category.setId(1L);
-        book.setAuthor(author);
-        book.setCategory(category);
+        Book book = createTestBook(bookId, 10L, 20L);
 
         List<Subscription> subscriptions = new ArrayList<>();
-        Subscription sub = new Subscription();
-        sub.setClient(client);
-
         for (int i = 0; i < 501; i++) {
-            subscriptions.add(sub);
+            Client c = new Client();
+            c.setId((long) i);
+            Subscription s = new Subscription();
+            s.setClient(c);
+            subscriptions.add(s);
         }
 
         when(bookServiceMock.findBookById(bookId)).thenReturn(book);
-        when(subscriptionRepositoryMock.streamByAuthorIdOrCategoryId(anyLong(), anyLong()))
-                .thenAnswer(invocation -> subscriptions.stream());
+        when(subscriptionRepositoryMock.streamByAuthorId(10L)).thenAnswer(inv -> subscriptions.stream().limit(300));
+        when(subscriptionRepositoryMock.streamByCategoryId(20L)).thenAnswer(inv -> subscriptions.stream().skip(300));
 
         //when
         readerService.createNotificationsForSubscriptions(bookId);
 
         //then
         verify(notificationRepositoryMock, times(2)).saveAll(anyList());
-        verify(notificationRepositoryMock, times(1)).flush();
-        verify(entityManager, times(1)).clear();
-        verify(entityManager, times(1)).merge(book);
+        verify(notificationRepositoryMock, times(2)).flush();
+        verify(entityManager, times(2)).clear();
+        verify(entityManager, times(2)).merge(book);
     }
 
     @Test
     void shouldNotCreateNotificationWhenNoSubscription() {
         //given
         Long bookId = 1L;
-        Book book = new Book();
-        Author author = new Author();
-        Category category = new Category();
-        author.setId(1L);
-        category.setId(1L);
-        book.setAuthor(author);
-        book.setCategory(category);
+        Book book = createTestBook(bookId, 10L, 20L);
 
         when(bookServiceMock.findBookById(bookId)).thenReturn(book);
-        when(subscriptionRepositoryMock.streamByAuthorIdOrCategoryId(anyLong(), anyLong()))
-                .thenAnswer(invocation -> Stream.empty());
+        when(subscriptionRepositoryMock.streamByAuthorId(anyLong())).thenAnswer(inv -> Stream.empty());
+        when(subscriptionRepositoryMock.streamByCategoryId(anyLong())).thenAnswer(inv -> Stream.empty());
 
         //when
         readerService.createNotificationsForSubscriptions(bookId);
@@ -170,5 +151,17 @@ public class SubscriptionNotificationReaderServiceTest {
 
         //then
         verify(processingServiceMock, never()).processBucket(any(), any());
+    }
+
+    private Book createTestBook(Long bookId, Long authorId, Long categoryId) {
+        Book book = new Book();
+        book.setId(bookId);
+        Author author = new Author();
+        author.setId(authorId);
+        Category category = new Category();
+        category.setId(categoryId);
+        book.setAuthor(author);
+        book.setCategory(category);
+        return book;
     }
 }
