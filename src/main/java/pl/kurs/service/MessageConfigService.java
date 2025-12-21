@@ -14,7 +14,6 @@ import java.util.NoSuchElementException;
 public class MessageConfigService {
     private final MessageConfigRepository messageConfigRepository;
 
-    @Transactional(readOnly = true)
     @Cacheable(value = "emailTemplates", key = "#code")
     public MessageConfig findMessageConfigByCode(String code) {
         return messageConfigRepository.findByCode(code)

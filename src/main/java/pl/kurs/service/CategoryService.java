@@ -12,8 +12,7 @@ import pl.kurs.repository.CategoryRepository;
 public class CategoryService {
     private final CategoryRepository categoryRepository;
 
-    @Transactional(readOnly = true)
-    public Category findById(Long id) {
+    public Category findCategoryById(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Category ID: " + id + " not found"));
     }

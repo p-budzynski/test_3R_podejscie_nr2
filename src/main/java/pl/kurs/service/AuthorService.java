@@ -12,7 +12,6 @@ import pl.kurs.repository.AuthorRepository;
 public class AuthorService {
     private final AuthorRepository authorRepository;
 
-    @Transactional(readOnly = true)
     public Author findAuthorById(Long id) {
         return authorRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Author with id: " + id + " not found"));

@@ -43,13 +43,11 @@ public class ClientService {
                 .orElse(false);
     }
 
-    @Transactional(readOnly = true)
     public Client findClientById(Long id) {
         return clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Client not found with id: " + id));
     }
 
-    @Transactional(readOnly = true)
     public Client findVerifiedClientById(Long id) {
         Client client = findClientById(id);
         if (!client.getEmailVerified()) {

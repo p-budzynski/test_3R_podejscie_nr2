@@ -28,7 +28,7 @@ public class SubscriptionNotificationReaderService {
     private final BookService bookService;
 
     @PersistenceContext
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
     @Transactional
     public void createNotificationsForSubscriptions(Long bookId) {
@@ -60,7 +60,7 @@ public class SubscriptionNotificationReaderService {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void processAllNotificationsStream() {
         Long currentClientId = null;
         Client currentClient = null;

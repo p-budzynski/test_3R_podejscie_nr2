@@ -24,7 +24,7 @@ public class BookService {
 
     @Transactional
     public BookDto createBook(BookDto dto) {
-        Category category = categoryService.findById(dto.getCategoryId());
+        Category category = categoryService.findCategoryById(dto.getCategoryId());
         Author author = authorService.findAuthorById(dto.getAuthorId());
         Book book = bookMapper.dtoToEntity(dto);
         book.setCategory(category);
@@ -35,7 +35,6 @@ public class BookService {
         return bookMapper.entityToDto(savedBook);
     }
 
-    @Transactional(readOnly = true)
     public Book findBookById(Long id) {
         return bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book with id: " + id + " not found"));
