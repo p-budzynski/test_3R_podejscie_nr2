@@ -58,8 +58,9 @@ public class SubscriptionNotificationReaderServiceTest {
 
         //then
         verify(notificationRepositoryMock, times(1)).saveAll(anyList());
-        verify(entityManager, times(1)).clear();
-        verify(entityManager, times(1)).merge(book);
+        verify(notificationRepositoryMock, times(1)).flush();
+        verify(entityManager, never()).clear();
+        verify(entityManager, never()).merge(any());
     }
 
     @Test
@@ -87,8 +88,8 @@ public class SubscriptionNotificationReaderServiceTest {
         //then
         verify(notificationRepositoryMock, times(2)).saveAll(anyList());
         verify(notificationRepositoryMock, times(2)).flush();
-        verify(entityManager, times(2)).clear();
-        verify(entityManager, times(2)).merge(book);
+        verify(entityManager, times(1)).clear();
+        verify(entityManager, times(1)).merge(book);
     }
 
     @Test

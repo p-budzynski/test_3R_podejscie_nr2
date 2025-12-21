@@ -47,12 +47,12 @@ public class SubscriptionNotificationReaderService {
                                 .build());
 
                         if (batch.size() >= 500) {
-                            saveBatch(batch, book);
+                            saveBatch(batch, book, true);
                         }
                     });
 
             if (!batch.isEmpty()) {
-                saveBatch(batch, book);
+                saveBatch(batch, book, false);
             }
         }
     }
@@ -88,11 +88,16 @@ public class SubscriptionNotificationReaderService {
         }
     }
 
-    private void saveBatch(List<SubscriptionNotification> batch, Book book) {
+    private void saveBatch(List<SubscriptionNotification> batch, Book book, boolean shouldClear) {
         notificationRepository.saveAll(batch);
         notificationRepository.flush();
-        entityManager.clear();
-        batch.clear();
-        entityManager.merge(book);
+
+        if (shouldClear) {
+            entityManager.clear();
+            batch.clear();
+            entityManager.merge(book);
+        } else {
+            batch.clear();
+        }
     }
 }
