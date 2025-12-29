@@ -87,4 +87,10 @@ public class GlobalHandlerException {
         ExceptionResponseDto response = new ExceptionResponseDto(exception.getMessage(), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(response);
     }
+
+    @ExceptionHandler(InvalidVerificationTokenException.class)
+    public ResponseEntity<ExceptionResponseDto> handleInvalidVerificationTokenException(InvalidVerificationTokenException exception) {
+        ExceptionResponseDto response = new ExceptionResponseDto(exception.getMessage(), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST.value()).body(response);
+    }
 }

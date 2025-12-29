@@ -17,7 +17,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -79,8 +78,7 @@ public class ClientControllerTest {
         //when then
         mockMvc.perform(get("/clients/verification")
                         .param("token", testToken))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Email verified successfully!"));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -88,7 +86,6 @@ public class ClientControllerTest {
         //when then
         mockMvc.perform(get("/clients/verification")
                         .param("token", "invalid-token"))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Invalid verification token."));
+                .andExpect(status().isBadRequest());
     }
 }

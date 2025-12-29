@@ -30,7 +30,7 @@ public class SubscriptionNotificationReaderService {
 
     @Transactional
     public void createNotificationsForSubscriptions(Long bookId) {
-        Book book = bookService.findBookById(bookId);
+        Book book = bookService.findBookByIdWithCategoryAndAuthor(bookId);
         List<SubscriptionNotification> batch = new ArrayList<>();
 
         Set<Long> processedClientIds = new HashSet<>();

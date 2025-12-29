@@ -35,8 +35,8 @@ public class BookService {
         return bookMapper.entityToDto(savedBook);
     }
 
-    public Book findBookById(Long id) {
-        return bookRepository.findById(id)
+    public Book findBookByIdWithCategoryAndAuthor(Long id) {
+        return bookRepository.findByIdWithCategoryAndAuthor(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Book with id: " + id + " not found"));
     }
 }

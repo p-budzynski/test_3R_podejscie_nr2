@@ -2,7 +2,6 @@ package pl.kurs.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.kurs.dto.ClientDto;
@@ -21,11 +20,9 @@ public class ClientController {
     }
 
     @GetMapping("/verification")
-    public ResponseEntity<String> verifyEmail(@RequestParam String token) {
-        if (clientService.verifyEmail(token)) {
-            return ResponseEntity.ok("Email verified successfully!");
-        } else {
-            return ResponseEntity.badRequest().body("Invalid verification token.");
-        }
+    @ResponseStatus(HttpStatus.OK)
+    public void verifyEmail(@RequestParam String token) {
+        clientService.verifyEmail(token);
     }
+
 }

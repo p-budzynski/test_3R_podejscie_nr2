@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "authors")
@@ -26,5 +26,5 @@ public class Author {
     private String lastName;
 
     @OneToMany(mappedBy = "author")
-    private List<Book> books;
+    private Set<Book> books;
 }

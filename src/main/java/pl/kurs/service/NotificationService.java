@@ -6,17 +6,7 @@ import org.springframework.stereotype.Service;
 import pl.kurs.entity.Book;
 import pl.kurs.event.BookCreatedEvent;
 import pl.kurs.event.ClientVerificationEvent;
-
-/**
- * NotificationService simulates an independent microservice responsible
- * for sending notifications.
- *
- * In a real-world architecture, communication would be asynchronous
- * (e.g. via a message broker such as Kafka).
- *
- * For the purposes of this project, communication is simplified and
- * implemented using Spring's local ApplicationEventPublisher.
- */
+import pl.kurs.event.EmailVerifiedConfirmationEvent;
 
 @Service
 @RequiredArgsConstructor
@@ -29,5 +19,9 @@ public class NotificationService {
 
     public void publishClientRegistryNotification(String email, String token) {
         eventPublisher.publishEvent(new ClientVerificationEvent(this, email, token));
+    }
+
+    public void publishEmailVerifiedConfirmation(String email) {
+        eventPublisher.publishEvent(new EmailVerifiedConfirmationEvent(this, email));
     }
 }

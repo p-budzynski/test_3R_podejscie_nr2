@@ -11,14 +11,13 @@ import org.springframework.mail.javamail.JavaMailSender;
 import pl.kurs.config.NotificationProperties;
 import pl.kurs.entity.*;
 
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class MailServiceTest {
@@ -96,11 +95,63 @@ public class MailServiceTest {
     }
 
     @Test
+    void shouldSendEmailVerifiedConfirmation() {
+        //given
+        String recipientEmail = "user@example.com";
+        String subject = "E-mail verified";
+        String bodyTemplate = "Your e-mail address has been successfully verified!";
+
+        MessageConfig mockTemplate = new MessageConfig();
+        mockTemplate.setSubject(subject);
+        mockTemplate.setBody(bodyTemplate);
+
+        when(messageConfigServiceMock.findMessageConfigByCode("EMAIL_VERIFIED")).thenReturn(mockTemplate);
+        when(notificationPropertiesMock.getEmail()).thenReturn(SENDER_MAIL);
+
+        ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        //when
+        mailService.sendEmailVerifiedConfirmation(recipientEmail);
+
+        //then
+        verify(mailSenderMock, times(1)).send(messageCaptor.capture());
+
+        SimpleMailMessage sentMessage = messageCaptor.getValue();
+        assertThat(sentMessage.getFrom()).isEqualTo(SENDER_MAIL);
+        assertThat(sentMessage.getTo()[0]).isEqualTo(recipientEmail);
+        assertThat(sentMessage.getSubject()).isEqualTo(subject);
+        assertThat(sentMessage.getText()).isEqualTo(bodyTemplate);
+    }
+
+    @Test
+    void shouldHandleExceptionsWhenSendingEmailVerifiedConfirmationFails() {
+        //given
+        String recipientEmail = "user@example.com";
+
+        MessageConfig mockTemplate = new MessageConfig();
+        mockTemplate.setSubject("Test");
+        mockTemplate.setBody("Body");
+
+        when(messageConfigServiceMock.findMessageConfigByCode(anyString())).thenReturn(mockTemplate);
+        when(notificationPropertiesMock.getEmail()).thenReturn(SENDER_MAIL);
+
+        doThrow(new RuntimeException("**** Test Mail Exception - Email Verified Confirmation ****"))
+                .when(mailSenderMock).send(any(SimpleMailMessage.class));
+
+        //when
+        mailService.sendEmailVerifiedConfirmation(recipientEmail);
+
+        //then
+        verify(mailSenderMock, times(1)).send(any(SimpleMailMessage.class));
+        verifyNoMoreInteractions(mailSenderMock);
+    }
+
+    @Test
     void shouldSendNewBookNotifications() {
         //given
         Client client = new Client(1L, "Jan", "Nowak", "j.nowak@mail.com", "Warsaw,", true, null, null);
         Author author = new Author(1L, "George", "Orwell", null);
-        List<Book> books = List.of(
+        Set<Book> books = Set.of(
                 new Book(1L, "Nineteen Eighty-Four", new Category(1L, "Science fiction"), 350, author),
                 new Book(2L, "Animal Farm", new Category(2L, "Political satire"), 110, author));
         author.setBooks(books);
@@ -141,7 +192,7 @@ public class MailServiceTest {
         Client client = new Client();
         client.setEmail("client@mail.com");
         client.setFirstName("Jan");
-        List<Book> books = List.of();
+        Set<Book> books = Set.of();
 
         MessageConfig mockTemplate = new MessageConfig();
         mockTemplate.setSubject("Test");

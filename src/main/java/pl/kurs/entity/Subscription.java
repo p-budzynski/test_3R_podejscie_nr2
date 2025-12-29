@@ -1,16 +1,12 @@
 package pl.kurs.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import pl.kurs.exception.InvalidSubscriptionException;
 
 @Entity
 @Table(name = "subscriptions",
         indexes = {
-                @Index(name = "idx_sub_client", columnList = "client_fk"),
                 @Index(name = "idx_sub_author", columnList = "author_fk"),
                 @Index(name = "idx_sub_category", columnList = "category_fk")
         })
@@ -18,6 +14,7 @@ import pl.kurs.exception.InvalidSubscriptionException;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Subscription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

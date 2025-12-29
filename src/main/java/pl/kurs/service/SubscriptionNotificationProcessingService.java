@@ -12,6 +12,8 @@ import pl.kurs.entity.SubscriptionNotification;
 import pl.kurs.repository.SubscriptionNotificationRepository;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,14 +22,13 @@ public class SubscriptionNotificationProcessingService {
     private final SubscriptionNotificationRepository notificationRepository;
     private final MailService mailService;
 
-    @Async("notificationsExecutor")
+    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processBucket(Client client, List<SubscriptionNotification> bucket) {
         try {
-            List<Book> books = bucket.stream()
+            Set<Book> books = bucket.stream()
                     .map(SubscriptionNotification::getBook)
-                    .distinct()
-                    .toList();
+                    .collect(Collectors.toSet());
 
             mailService.sendNewBookNotifications(client, books);
 

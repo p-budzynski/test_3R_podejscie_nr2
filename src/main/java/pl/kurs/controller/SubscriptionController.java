@@ -3,7 +3,6 @@ package pl.kurs.controller;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.kurs.dto.SubscriptionDto;
@@ -25,13 +24,13 @@ public class SubscriptionController {
     }
 
     @DeleteMapping
-    public ResponseEntity<String> cancelSubscription(@RequestParam @NotNull Long clientId,
-                                                     @RequestParam(required = false) Long authorId,
-                                                     @RequestParam(required = false) Long categoryId) {
+    @ResponseStatus(HttpStatus.OK)
+    public void cancelSubscription(@RequestParam @NotNull Long clientId,
+                                   @RequestParam(required = false) Long authorId,
+                                   @RequestParam(required = false) Long categoryId) {
         if ((authorId == null && categoryId == null) || (authorId != null && categoryId != null)) {
             throw new InvalidSubscriptionException("You must provide either authorId or categoryId");
         }
         subscriptionService.cancelSubscription(clientId, authorId, categoryId);
-        return ResponseEntity.ok("Subscription cancelled");
     }
 }

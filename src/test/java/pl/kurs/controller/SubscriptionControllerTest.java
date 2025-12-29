@@ -92,8 +92,7 @@ public class SubscriptionControllerTest {
         mockMvc.perform(delete("/subscriptions")
                         .param("clientId", String.valueOf(clientId))
                         .param("categoryId", String.valueOf(categoryId)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Subscription cancelled"));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -107,8 +106,7 @@ public class SubscriptionControllerTest {
         mockMvc.perform(delete("/subscriptions")
                         .param("clientId", String.valueOf(clientId))
                         .param("authorId", String.valueOf(authorId)))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Subscription cancelled"));
+                .andExpect(status().isOk());
     }
 
     @Test

@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableAsync
 public class AsyncConfig {
 
-    @Bean(name = "notificationsExecutor")
+    @Bean
     public Executor notificationsExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);

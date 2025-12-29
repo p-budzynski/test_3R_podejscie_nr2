@@ -12,6 +12,7 @@ import pl.kurs.entity.MessageConfig;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +41,22 @@ public class MailService {
         }
     }
 
-    public void sendNewBookNotifications(Client client, List<Book> books) {
+    public void sendEmailVerifiedConfirmation(String email) {
+        try {
+            MessageConfig template = messageConfigService.findMessageConfigByCode("EMAIL_VERIFIED");
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(notificationProperties.getEmail());
+            message.setTo(email);
+            message.setSubject(template.getSubject());
+            message.setText(template.getBody());
+            mailSender.send(message);
+            log.info("E-mail verification confirmation sent to: {}", email);
+        } catch (Exception ex) {
+            log.error("Failed to send e-mail verification confirmation to: {}", email, ex);
+        }
+    }
+
+    public void sendNewBookNotifications(Client client, Set<Book> books) {
         try {
             MessageConfig template = messageConfigService.findMessageConfigByCode("NEW_BOOKS");
 

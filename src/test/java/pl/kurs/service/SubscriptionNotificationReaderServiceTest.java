@@ -49,7 +49,7 @@ public class SubscriptionNotificationReaderServiceTest {
         Subscription subscription = new Subscription();
         subscription.setClient(client);
 
-        when(bookServiceMock.findBookById(bookId)).thenReturn(book);
+        when(bookServiceMock.findBookByIdWithCategoryAndAuthor(bookId)).thenReturn(book);
         when(subscriptionRepositoryMock.streamByAuthorId(10L)).thenAnswer(inv -> Stream.of(subscription));
         when(subscriptionRepositoryMock.streamByCategoryId(20L)).thenAnswer(inv -> Stream.empty());
 
@@ -78,7 +78,7 @@ public class SubscriptionNotificationReaderServiceTest {
             subscriptions.add(s);
         }
 
-        when(bookServiceMock.findBookById(bookId)).thenReturn(book);
+        when(bookServiceMock.findBookByIdWithCategoryAndAuthor(bookId)).thenReturn(book);
         when(subscriptionRepositoryMock.streamByAuthorId(10L)).thenAnswer(inv -> subscriptions.stream().limit(300));
         when(subscriptionRepositoryMock.streamByCategoryId(20L)).thenAnswer(inv -> subscriptions.stream().skip(300));
 
@@ -98,7 +98,7 @@ public class SubscriptionNotificationReaderServiceTest {
         Long bookId = 1L;
         Book book = createTestBook(bookId, 10L, 20L);
 
-        when(bookServiceMock.findBookById(bookId)).thenReturn(book);
+        when(bookServiceMock.findBookByIdWithCategoryAndAuthor(bookId)).thenReturn(book);
         when(subscriptionRepositoryMock.streamByAuthorId(anyLong())).thenAnswer(inv -> Stream.empty());
         when(subscriptionRepositoryMock.streamByCategoryId(anyLong())).thenAnswer(inv -> Stream.empty());
 

@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.dto.ClientDto;
 import pl.kurs.entity.Client;
 import pl.kurs.exception.EmailNotVerifiedException;
+import pl.kurs.exception.InvalidVerificationTokenException;
 import pl.kurs.exception.ResourceNotFoundException;
 import pl.kurs.mapper.ClientMapper;
 import pl.kurs.repository.ClientRepository;
@@ -33,14 +34,13 @@ public class ClientService {
     }
 
     @Transactional
-    public boolean verifyEmail(String token) {
-        return clientRepository.findByVerificationToken(token)
-                .map(client -> {
-                    client.setEmailVerified(true);
-                    client.setVerificationToken(null);
-                    return true;
-                })
-                .orElse(false);
+    public void verifyEmail(String token) {
+        Client client = clientRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new InvalidVerificationTokenException("The token is invalid or has already been used"));
+        client.setEmailVerified(true);
+        client.setVerificationToken(null);
+        clientRepository.save(client);
+        notificationService.publishEmailVerifiedConfirmation(client.getEmail());
     }
 
     public Client findClientById(Long id) {

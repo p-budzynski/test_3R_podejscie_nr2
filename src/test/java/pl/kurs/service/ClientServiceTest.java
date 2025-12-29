@@ -64,21 +64,6 @@ public class ClientServiceTest {
     }
 
     @Test
-    void shouldVerifyEmailSuccessfully() {
-        //given
-        String token = "valid-token";
-        Client unverifiedClient = createClientWithToken(token);
-
-        when(clientRepositoryMock.findByVerificationToken(token)).thenReturn(Optional.of(unverifiedClient));
-
-        //when
-        boolean result = clientService.verifyEmail(token);
-
-        //then
-        assertThat(result).isTrue();
-    }
-
-    @Test
     void shouldReturnClientById() {
         //given
         Long clientId = 1L;
@@ -157,18 +142,6 @@ public class ClientServiceTest {
                 .city("Warszawa")
                 .emailVerified(false)
                 .verificationToken("test-token")
-                .build();
-    }
-
-    private Client createClientWithToken(String token) {
-        return Client.builder()
-                .id(1L)
-                .firstName("Jan")
-                .lastName("Kowalski")
-                .email("test@example.com")
-                .city("Warszawa")
-                .emailVerified(false)
-                .verificationToken(token)
                 .build();
     }
 

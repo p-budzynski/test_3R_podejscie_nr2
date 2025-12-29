@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.kurs.event.ClientVerificationEvent;
+import pl.kurs.event.EmailVerifiedConfirmationEvent;
 import pl.kurs.service.MailService;
 
 import static org.mockito.Mockito.verify;
@@ -31,5 +32,18 @@ public class ClientVerificationEventListenerTest {
 
         //then
         verify(mailServiceMock).sendVerificationEmail(mail, token);
+    }
+
+    @Test
+    void shouldCallMailServiceOnEmailVerifiedConfirmation() {
+        //given
+        String mail = "test@mail.com";
+        EmailVerifiedConfirmationEvent event = new EmailVerifiedConfirmationEvent(this, mail);
+
+        //when
+        eventListener.handleEmailVerifiedConfirmation(event);
+
+        //then
+        verify(mailServiceMock).sendEmailVerifiedConfirmation(mail);
     }
 }

@@ -1,20 +1,15 @@
 package pl.kurs.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Table(name = "books", indexes = {
-        @Index(name = "idx_book_author", columnList = "author_fk"),
-        @Index(name = "idx_book_category", columnList = "category_fk")
-})
+@Table(name = "books")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

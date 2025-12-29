@@ -76,10 +76,10 @@ public class BookServiceTest {
         //given
         Long bookId = 1L;
         Book book = new Book(bookId, "Test title", new Category(), 300, new Author());
-        when(bookRepositoryMock.findById(bookId)).thenReturn(Optional.of(book));
+        when(bookRepositoryMock.findByIdWithCategoryAndAuthor(bookId)).thenReturn(Optional.of(book));
 
         //when
-        Book result = bookService.findBookById(bookId);
+        Book result = bookService.findBookByIdWithCategoryAndAuthor(bookId);
 
         //then
         assertThat(result).isEqualTo(book);
@@ -89,11 +89,11 @@ public class BookServiceTest {
     void shouldThrowExceptionWhenBookNotFound() {
         //given
         Long bookId = 1L;
-        when(bookRepositoryMock.findById(bookId))
+        when(bookRepositoryMock.findByIdWithCategoryAndAuthor(bookId))
                 .thenReturn(Optional.empty());
 
         //when then
-        assertThatThrownBy(() -> bookService.findBookById(bookId))
+        assertThatThrownBy(() -> bookService.findBookByIdWithCategoryAndAuthor(bookId))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessage("Book with id: " + bookId + " not found");
     }
