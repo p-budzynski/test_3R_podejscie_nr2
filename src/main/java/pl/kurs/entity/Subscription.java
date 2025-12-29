@@ -8,7 +8,9 @@ import pl.kurs.exception.InvalidSubscriptionException;
 @Table(name = "subscriptions",
         indexes = {
                 @Index(name = "idx_sub_author", columnList = "author_fk"),
-                @Index(name = "idx_sub_category", columnList = "category_fk")
+                @Index(name = "idx_sub_category", columnList = "category_fk"),
+                @Index(name = "idx_sub_client_author", columnList = "client_fk, author_fk"),
+                @Index(name = "idx_sub_client_category", columnList = "client_fk, category_fk")
         })
 @Data
 @Builder
