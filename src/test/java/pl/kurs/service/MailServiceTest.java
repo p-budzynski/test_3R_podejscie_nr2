@@ -152,12 +152,11 @@ public class MailServiceTest {
         Client client = new Client(1L, "Jan", "Nowak", "j.nowak@mail.com", "Warsaw,", true, null, null);
         Author author = new Author(1L, "George", "Orwell", null);
         Set<Book> books = Set.of(
-                new Book(1L, "Nineteen Eighty-Four", new Category(1L, "Science fiction"), 350, author),
-                new Book(2L, "Animal Farm", new Category(2L, "Political satire"), 110, author));
+                new Book(1L, "Nineteen Eighty-Four", new Category(1L, "Science fiction"), 350, author, null),
+                new Book(2L, "Animal Farm", new Category(2L, "Political satire"), 110, author, null));
         author.setBooks(books);
 
-        String subject = "New books in the library!";
-        String bodyTemplate = "Hello {{firstName}},\n\nWe’ve added new books that might interest you:\n\n{{bookList}}\n\nVisit our library to explore them!\n\nBest regards,\nYour Library Team!";
+        MessageConfig template = createMessageConfigTemplate();
 
         String expectedBookList = books.stream()
                 .map(book -> "* " + book.getTitle() + " - " + book.getAuthor().getFirstName() +
@@ -165,16 +164,11 @@ public class MailServiceTest {
                 .collect(Collectors.joining("\n"));
         String expectedBody = "Hello " + client.getFirstName() + ",\n\nWe’ve added new books that might interest you:\n\n" + expectedBookList + "\n\nVisit our library to explore them!\n\nBest regards,\nYour Library Team!";
 
-        MessageConfig mockTemplate = new MessageConfig();
-        mockTemplate.setSubject(subject);
-        mockTemplate.setBody(bodyTemplate);
-
-        when(messageConfigServiceMock.findMessageConfigByCode("NEW_BOOKS")).thenReturn(mockTemplate);
         when(notificationPropertiesMock.getEmail()).thenReturn(SENDER_MAIL);
         ArgumentCaptor<SimpleMailMessage> messageCaptor = ArgumentCaptor.forClass(SimpleMailMessage.class);
 
         //when
-        mailService.sendNewBookNotifications(client, books);
+        mailService.sendNewBookNotifications(client.getFirstName(), client.getEmail(), books, template);
 
         //then
         verify(mailSenderMock, times(1)).send(messageCaptor.capture());
@@ -182,7 +176,7 @@ public class MailServiceTest {
         SimpleMailMessage sentMessage = messageCaptor.getValue();
         assertThat(sentMessage.getFrom()).isEqualTo(SENDER_MAIL);
         assertThat(sentMessage.getTo()[0]).isEqualTo(client.getEmail());
-        assertThat(sentMessage.getSubject()).isEqualTo(subject);
+        assertThat(sentMessage.getSubject()).isEqualTo(template.getSubject());
         assertThat(sentMessage.getText()).isEqualTo(expectedBody);
     }
 
@@ -194,20 +188,25 @@ public class MailServiceTest {
         client.setFirstName("Jan");
         Set<Book> books = Set.of();
 
-        MessageConfig mockTemplate = new MessageConfig();
-        mockTemplate.setSubject("Test");
-        mockTemplate.setBody("Body {{firstName}} {{bookList}}");
+        MessageConfig template = createMessageConfigTemplate();
 
-        when(messageConfigServiceMock.findMessageConfigByCode(anyString())).thenReturn(mockTemplate);
         when(notificationPropertiesMock.getEmail()).thenReturn(SENDER_MAIL);
 
         doThrow(new RuntimeException("**** Test Mail Exception - New Books ****")).when(mailSenderMock).send(any(SimpleMailMessage.class));
 
         //when
-        mailService.sendNewBookNotifications(client, books);
+        mailService.sendNewBookNotifications(client.getFirstName(), client.getEmail(), books, template);
 
         //then
         verify(mailSenderMock, times(1)).send(any(SimpleMailMessage.class));
         verifyNoMoreInteractions(mailSenderMock);
+    }
+
+    private MessageConfig createMessageConfigTemplate() {
+        MessageConfig template = new MessageConfig();
+        template.setCode("NEW BOOKS");
+        template.setBody("Hello {{firstName}},\\n\\nWe’ve added new books that might interest you:\\n\\n{{bookList}}\\n\\nVisit our library to explore them!\\n\\nBest regards,\\nYour Library Team!");
+        template.setSubject("New books in the library!");
+        return template;
     }
 }

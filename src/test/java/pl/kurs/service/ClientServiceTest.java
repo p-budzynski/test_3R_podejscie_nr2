@@ -29,10 +29,10 @@ public class ClientServiceTest {
     private ClientRepository clientRepositoryMock;
 
     @Mock
-    private NotificationService notificationServiceMock;
+    private ClientMapper clientMapperMock;
 
     @Mock
-    private ClientMapper clientMapperMock;
+    private MailService mailServiceMock;
 
     @InjectMocks
     private ClientService clientService;
@@ -52,7 +52,7 @@ public class ClientServiceTest {
 
             when(clientMapperMock.dtoToEntity(clientDto)).thenReturn(client);
             when(clientRepositoryMock.save(any(Client.class))).thenReturn(savedClient);
-            doNothing().when(notificationServiceMock).publishClientRegistryNotification(clientDto.getEmail(), expectedToken);
+            doNothing().when(mailServiceMock).sendVerificationEmail(clientDto.getEmail(), expectedToken);
             when(clientMapperMock.entityToDto(savedClient)).thenReturn(clientDto);
 
             //when

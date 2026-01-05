@@ -48,14 +48,10 @@ public class SubscriptionControllerTest {
     private SubscriptionRepository subscriptionRepository;
 
     @Autowired
-    private SubscriptionNotificationRepository notificationRepository;
-
-    @Autowired
     private BookRepository bookRepository;
 
     @BeforeEach
     void clean() {
-        notificationRepository.deleteAll();
         subscriptionRepository.deleteAll();
         bookRepository.deleteAll();
         categoryRepository.deleteAll();

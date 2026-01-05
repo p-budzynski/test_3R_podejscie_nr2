@@ -31,12 +31,12 @@ INSERT INTO clients (first_name, last_name, email, city, email_verified, verific
 ('Katarzyna', 'Mazur', 'katarzyna.mazur@example.com', 'Poznań', true, NULL);
 
 
-INSERT INTO books (title, category_fk, page_count, author_fk) VALUES
-('Rok 1984', 2, 328, 1),
-('Norwegian Wood', 1, 296, 2),
-('Krótka historia czasu', 8, 212, 3),
-('Sapiens: Od zwierząt do bogów', 6, 443, 4),
-('Systemy operacyjne', 9, 1136, 5);
+INSERT INTO books (title, category_fk, page_count, author_fk, created_at) VALUES
+('Rok 1984', 2, 328, 1, '2025-10-21'),
+('Norwegian Wood', 1, 296, 2, '2025-10-21'),
+('Krótka historia czasu', 8, 212, 3, '2025-10-21'),
+('Sapiens: Od zwierząt do bogów', 6, 443, 4, '2025-10-21'),
+('Systemy operacyjne', 9, 1136, 5, '2025-10-21');
 
 
 INSERT INTO subscriptions (client_fk, author_fk, category_fk) VALUES

@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import pl.kurs.dto.BookDto;
+import pl.kurs.dto.CreateBookDto;
 import pl.kurs.entity.Author;
 import pl.kurs.entity.Book;
 import pl.kurs.entity.Category;
@@ -34,9 +35,6 @@ public class BookServiceTest {
     private AuthorService authorServiceMock;
 
     @Mock
-    private NotificationService notificationServiceMock;
-
-    @Mock
     private BookMapper bookMapperMock;
 
     @InjectMocks
@@ -45,56 +43,25 @@ public class BookServiceTest {
     @Test
     void shouldCreateBook() {
         //given
-        BookDto expectedDto = new BookDto(1L, 1L, "Test title", 1L, 300);
-        BookDto bookDto = new BookDto(null, 1L, "Test title", 1L, 300);
         Author author = new Author(1L, "Test firstName", "Test lastName", null);
         Category category = new Category(1L, "Test category");
-        Book book = new Book(null, "Test title", category, 300, author);
-        Book savedBook = new Book(1L, "Test title", category, 300, author);
+        CreateBookDto createBookDto = new CreateBookDto(author.getId(), "Test title", category.getId(), 300);
+        BookDto expectedDto = new BookDto(1L, createBookDto.getTitle(), category.getName(), author.getFirstName() + " " + author.getLastName(), 300);
+        Book book = new Book(null, "Test title", category, 300, author, null);
+        Book savedBook = new Book(1L, "Test title", category, 300, author, null);
 
         when(categoryServiceMock.findCategoryById(1L)).thenReturn(category);
         when(authorServiceMock.findAuthorById(1L)).thenReturn(author);
-        when(bookMapperMock.dtoToEntity(bookDto)).thenReturn(book);
+        when(bookMapperMock.dtoToEntity(createBookDto)).thenReturn(book);
         when(bookRepositoryMock.save(any(Book.class))).thenReturn(savedBook);
-        doNothing().when(notificationServiceMock).publishCreatedBookNotification(savedBook);
         when(bookMapperMock.entityToDto(savedBook)).thenReturn(expectedDto);
 
         //when
-        BookDto result = bookService.createBook(bookDto);
+        BookDto result = bookService.createBook(createBookDto);
 
         //then
         assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1L);
-        assertThat(result.getTitle()).isEqualTo("Test title");
-        assertThat(result.getAuthorId()).isEqualTo(1L);
-        assertThat(result.getCategoryId()).isEqualTo(1L);
-        assertThat(result.getPageCount()).isEqualTo(300);
+        assertThat(result).isEqualTo(expectedDto);
     }
 
-    @Test
-    void shouldReturnBookById() {
-        //given
-        Long bookId = 1L;
-        Book book = new Book(bookId, "Test title", new Category(), 300, new Author());
-        when(bookRepositoryMock.findByIdWithCategoryAndAuthor(bookId)).thenReturn(Optional.of(book));
-
-        //when
-        Book result = bookService.findBookByIdWithCategoryAndAuthor(bookId);
-
-        //then
-        assertThat(result).isEqualTo(book);
-    }
-
-    @Test
-    void shouldThrowExceptionWhenBookNotFound() {
-        //given
-        Long bookId = 1L;
-        when(bookRepositoryMock.findByIdWithCategoryAndAuthor(bookId))
-                .thenReturn(Optional.empty());
-
-        //when then
-        assertThatThrownBy(() -> bookService.findBookByIdWithCategoryAndAuthor(bookId))
-                .isInstanceOf(ResourceNotFoundException.class)
-                .hasMessage("Book with id: " + bookId + " not found");
-    }
 }

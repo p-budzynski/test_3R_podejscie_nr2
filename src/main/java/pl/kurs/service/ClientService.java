@@ -17,8 +17,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ClientService {
     private final ClientRepository clientRepository;
-    private final NotificationService notificationService;
     private final ClientMapper clientMapper;
+    private final MailService mailService;
 
     @Transactional
     public ClientDto createClient(ClientDto dto) {
@@ -28,7 +28,7 @@ public class ClientService {
         client.setVerificationToken(verificationToken);
 
         Client savedClient = clientRepository.save(client);
-        notificationService.publishClientRegistryNotification(dto.getEmail(), verificationToken);
+        mailService.sendVerificationEmail(dto.getEmail(), verificationToken);
 
         return clientMapper.entityToDto(savedClient);
     }
@@ -40,7 +40,7 @@ public class ClientService {
         client.setEmailVerified(true);
         client.setVerificationToken(null);
         clientRepository.save(client);
-        notificationService.publishEmailVerifiedConfirmation(client.getEmail());
+        mailService.sendEmailVerifiedConfirmation(client.getEmail());
     }
 
     public Client findClientById(Long id) {

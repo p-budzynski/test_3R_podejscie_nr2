@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.dto.BookDto;
+import pl.kurs.dto.CreateBookDto;
 import pl.kurs.entity.Author;
 import pl.kurs.entity.Book;
 import pl.kurs.entity.Category;
-import pl.kurs.exception.ResourceNotFoundException;
 import pl.kurs.mapper.BookMapper;
 import pl.kurs.repository.BookRepository;
 
@@ -19,24 +19,18 @@ public class BookService {
     private final BookRepository bookRepository;
     private final CategoryService categoryService;
     private final AuthorService authorService;
-    private final NotificationService notificationService;
     private final BookMapper bookMapper;
 
     @Transactional
-    public BookDto createBook(BookDto dto) {
+    public BookDto createBook(CreateBookDto dto) {
         Category category = categoryService.findCategoryById(dto.getCategoryId());
         Author author = authorService.findAuthorById(dto.getAuthorId());
         Book book = bookMapper.dtoToEntity(dto);
         book.setCategory(category);
         book.setAuthor(author);
         Book savedBook = bookRepository.save(book);
-        notificationService.publishCreatedBookNotification(savedBook);
 
         return bookMapper.entityToDto(savedBook);
     }
 
-    public Book findBookByIdWithCategoryAndAuthor(Long id) {
-        return bookRepository.findByIdWithCategoryAndAuthor(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Book with id: " + id + " not found"));
-    }
 }

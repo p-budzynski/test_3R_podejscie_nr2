@@ -12,11 +12,11 @@ import pl.kurs.exception.InvalidSubscriptionException;
                 @Index(name = "idx_sub_client_author", columnList = "client_fk, author_fk"),
                 @Index(name = "idx_sub_client_category", columnList = "client_fk, category_fk")
         })
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
 public class Subscription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,5 +40,17 @@ public class Subscription {
         if ((author == null && category == null) || (author != null && category != null)) {
             throw new InvalidSubscriptionException("Subscription must have either author OR category, but not both.");
         }
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Subscription subscription)) return false;
+        return getId() != null && getId().equals(subscription.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -2,17 +2,15 @@ package pl.kurs.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "clients")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -42,4 +40,16 @@ public class Client {
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Set<Subscription> subscriptions = new HashSet<>();
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Client client)) return false;
+        return getId() != null && getId().equals(client.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

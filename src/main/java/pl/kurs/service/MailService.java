@@ -4,13 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pl.kurs.config.NotificationProperties;
 import pl.kurs.entity.Book;
-import pl.kurs.entity.Client;
 import pl.kurs.entity.MessageConfig;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -56,26 +55,25 @@ public class MailService {
         }
     }
 
-    public void sendNewBookNotifications(Client client, Set<Book> books) {
+    @Async("notificationsExecutor")
+    public void sendNewBookNotifications(String firstName, String email, Set<Book> books, MessageConfig template) {
         try {
-            MessageConfig template = messageConfigService.findMessageConfigByCode("NEW_BOOKS");
-
             String bookList = books.stream()
                     .map(book -> "* " + book.getTitle() + " - " + book.getAuthor().getFirstName() +
                                  " " + book.getAuthor().getLastName() + " (" + book.getCategory().getName() + ")")
                     .collect(Collectors.joining("\n"));
 
             Map<String, String> variables = Map.of(
-                    "firstName", client.getFirstName(),
+                    "firstName", firstName,
                     "bookList", bookList
             );
 
-            SimpleMailMessage message = createEmailMessage(client.getEmail(), template, variables);
+            SimpleMailMessage message = createEmailMessage(email, template, variables);
 
             mailSender.send(message);
-            log.info("Email with new books sent to {}", client.getEmail());
+            log.info("Email with new books sent to {}", email);
         } catch (Exception ex) {
-            log.error("Error sending e-mail to: {}", client.getEmail(), ex);
+            log.error("Error sending e-mail to: {}", email, ex);
         }
     }
 

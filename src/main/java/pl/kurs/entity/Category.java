@@ -1,14 +1,12 @@
 package pl.kurs.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "categories")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,4 +17,16 @@ public class Category {
 
     @Column(nullable = false, unique = true)
     private String name;
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Category category)) return false;
+        return getId() != null && getId().equals(category.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

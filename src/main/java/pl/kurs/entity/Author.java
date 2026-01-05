@@ -1,16 +1,14 @@
 package pl.kurs.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "authors")
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,4 +25,16 @@ public class Author {
 
     @OneToMany(mappedBy = "author")
     private Set<Book> books;
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (!(object instanceof Author author)) return true;
+        return getId() != null && getId().equals(author.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

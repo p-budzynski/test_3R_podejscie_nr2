@@ -3,9 +3,12 @@ package pl.kurs.mapper;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import pl.kurs.dto.BookDto;
+import pl.kurs.dto.CreateBookDto;
 import pl.kurs.entity.Author;
 import pl.kurs.entity.Book;
 import pl.kurs.entity.Category;
+
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -16,7 +19,10 @@ public class BookMapperTest {
     void shouldMapEntityToDto() {
         //given
         Book testBook = createTestBook();
-        BookDto testBookDto = createTestBookDto();
+        BookDto testBookDto = new BookDto(testBook.getId(), testBook.getTitle(),
+                testBook.getCategory().getName(),
+                testBook.getAuthor().getFirstName() + " " + testBook.getAuthor().getLastName(),
+                testBook.getPageCount());
 
         //when
         BookDto dto = bookMapper.entityToDto(testBook);
@@ -31,7 +37,7 @@ public class BookMapperTest {
     void shouldMapDtoToEntity() {
         //given
         Book testBook = createTestBook();
-        BookDto testBookDto = createTestBookDto();
+        CreateBookDto testBookDto = createTestBookDto();
 
         //when
         Book entity = bookMapper.dtoToEntity(testBookDto);
@@ -65,9 +71,8 @@ public class BookMapperTest {
         BookDto dto = bookMapper.entityToDto(testBook);
 
         //then
-        assertThat(dto.getAuthorId()).isEqualTo(testBook.getAuthor().getId());
         assertThat(dto.getTitle()).isEqualTo(testBook.getTitle());
-        assertThat(dto.getCategoryId()).isNull();
+        assertThat(dto.getCategoryName()).isNull();
         assertThat(dto.getPageCount()).isEqualTo(testBook.getPageCount());
     }
 
@@ -81,17 +86,19 @@ public class BookMapperTest {
         BookDto dto = bookMapper.entityToDto(testBook);
 
         //then
-        assertThat(dto.getAuthorId()).isNull();
+        assertThat(dto.getAuthorFullName()).isNull();
         assertThat(dto.getTitle()).isEqualTo(testBook.getTitle());
-        assertThat(dto.getCategoryId()).isEqualTo(testBook.getCategory().getId());
+        assertThat(dto.getCategoryName()).isEqualTo(testBook.getCategory().getName());
         assertThat(dto.getPageCount()).isEqualTo(testBook.getPageCount());
     }
 
     private Book createTestBook() {
-        return new Book(1L,"Test title", new Category(1L,"Test category"),100, new Author(1L, "Test firstName", "Test lastName",null));
+        return new Book(1L,"Test title",
+                new Category(1L,"Test category"),100,
+                new Author(1L, "Test firstName", "Test lastName",null), null);
     }
 
-    private BookDto createTestBookDto() {
-        return new BookDto(1L,1L,"Test title",1L,100);
+    private CreateBookDto createTestBookDto() {
+        return new CreateBookDto(1L,"Test title",1L,100);
     }
 }

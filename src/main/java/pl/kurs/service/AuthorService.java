@@ -2,7 +2,6 @@ package pl.kurs.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import pl.kurs.entity.Author;
 import pl.kurs.exception.ResourceNotFoundException;
 import pl.kurs.repository.AuthorRepository;

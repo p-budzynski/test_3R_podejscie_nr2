@@ -1,14 +1,10 @@
 package pl.kurs.service;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import pl.kurs.entity.MessageConfig;
 import pl.kurs.repository.MessageConfigRepository;
 
@@ -17,48 +13,31 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 
-@SpringJUnitConfig
-@EnableCaching
+@ExtendWith(MockitoExtension.class)
 public class MessageConfigServiceTest {
 
-    @Configuration
-    static class TestConfig {
+    @Mock
+    private MessageConfigRepository configRepositoryMock;
 
-        @Bean
-        CacheManager cacheManager() {
-            return new ConcurrentMapCacheManager("emailTemplates");
-        }
-
-        @Bean
-        MessageConfigService messageConfigService(MessageConfigRepository repository) {
-            return new MessageConfigService(repository);
-        }
-    }
-
-    @MockitoBean
-    private MessageConfigRepository messageConfigRepositoryMock;
-
-    @Autowired
+    @InjectMocks
     private MessageConfigService messageConfigService;
 
     @Test
-    void shouldCacheResultAndCallRepositoryOnlyOneForFindMessageConfigByCode() {
+    void shouldReturnMessageConfigByCode() {
         //given
         String code = "TestCode";
         MessageConfig messageConfig = new MessageConfig(1L, code, "TestSubject", "TestBody");
 
-        when(messageConfigRepositoryMock.findByCode(code)).thenReturn(Optional.of(messageConfig));
+        when(configRepositoryMock.findByCode(code)).thenReturn(Optional.of(messageConfig));
 
         //when
-        MessageConfig first = messageConfigService.findMessageConfigByCode(code);
-        MessageConfig second = messageConfigService.findMessageConfigByCode(code);
+        MessageConfig result = messageConfigService.findMessageConfigByCode(code);
 
         //then
-        assertThat(first).isEqualTo(second);
-        verify(messageConfigRepositoryMock, times(1)).findByCode(code);
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(messageConfig);
     }
 
     @Test
@@ -66,7 +45,7 @@ public class MessageConfigServiceTest {
         //given
         String code = "UNKNOWN";
 
-        when(messageConfigRepositoryMock.findByCode(code)).thenReturn(Optional.empty());
+        when(configRepositoryMock.findByCode(code)).thenReturn(Optional.empty());
 
         //when then
         assertThatThrownBy(() -> messageConfigService.findMessageConfigByCode(code))

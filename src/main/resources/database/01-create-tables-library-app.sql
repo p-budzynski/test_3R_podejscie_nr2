@@ -20,12 +20,8 @@ CREATE TABLE books (
     category_fk BIGINT NOT NULL,
     page_count INT,
     author_fk BIGINT NOT NULL,
-    CONSTRAINT fk_books_author FOREIGN KEY (author_fk) REFERENCES authors(id),
-    CONSTRAINT fk_books_category FOREIGN KEY (category_fk) REFERENCES categories(id)
+    created_at DATE NOT NULL
 );
-
-CREATE INDEX idx_book_author ON books(author_fk);
-CREATE INDEX idx_book_category ON books(category_fk);
 
 
 CREATE TABLE clients (
@@ -44,23 +40,15 @@ CREATE TABLE subscriptions (
     client_fk BIGINT NOT NULL,
     author_fk BIGINT,
     category_fk BIGINT,
-    CONSTRAINT fk_subscriptions_client FOREIGN KEY (client_fk) REFERENCES clients(id),
-    CONSTRAINT fk_subscriptions_author FOREIGN KEY (author_fk) REFERENCES authors(id),
-    CONSTRAINT fk_subscriptions_category FOREIGN KEY (category_fk) REFERENCES categories(id)
+    CONSTRAINT fk_sub_client FOREIGN KEY (client_fk) REFERENCES clients(id) ON DELETE CASCADE,
+    CONSTRAINT fk_sub_author FOREIGN KEY (author_fk) REFERENCES authors(id),
+    CONSTRAINT fk_sub_category FOREIGN KEY (category_fk) REFERENCES categories(id)
 );
 
-CREATE INDEX idx_subscription_client ON subscriptions(client_fk);
-CREATE INDEX idx_subscription_author ON subscriptions(author_fk);
-CREATE INDEX idx_subscription_category ON subscriptions(category_fk);
-
-
-CREATE TABLE subscription_notifications (
-    id BIGSERIAL PRIMARY KEY,
-    client_fk BIGINT NOT NULL,
-    book_fk BIGINT NOT NULL,
-    CONSTRAINT fk_subscription_notifications_client FOREIGN KEY (client_fk) REFERENCES clients(id),
-    CONSTRAINT fk_subscription_notifications_book FOREIGN KEY (book_fk) REFERENCES books(id)
-);
+CREATE INDEX idx_sub_author ON subscriptions(author_fk);
+CREATE INDEX idx_sub_category ON subscriptions(category_fk);
+CREATE INDEX idx_sub_client_author ON subscriptions(client_fk, author_fk);
+CREATE INDEX idx_sub_client_category ON subscriptions(client_fk, category_fk);
 
 
 CREATE TABLE message_config (
